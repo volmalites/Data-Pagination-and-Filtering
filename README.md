@@ -1,2 +1,2 @@
-# techdegree-project-unit-2
- Treehouse Tech Degree Project
+# Data-Pagination-and-Filtering
+ Treehouse Tech Degree Project Unit 2
