@@ -3,23 +3,20 @@ Treehouse Techdegree:
 FSJS Project 2 - Data Pagination and Filtering
 */
 
-
-
-/*
-For assistance:
-   Check out the "Project Resources" section of the Instructions tab: https://teamtreehouse.com/projects/data-pagination-and-filtering#instructions
-   Reach out in your Slack community: https://treehouse-fsjs-102.slack.com/app_redirect?channel=unit-2
-*/
-
-
+const ITEMS_PER_PAGE = 9;  // The number of students displayed on a page at a time
+let dataCopy = data; // Making a copy of the students data for search functionality
+// removing dataCopy breaks the pagination after search is done
 
 /*
-Create the `showPage` function
-This function will create and insert/append the elements needed to display a "page" of nine students
+Function:      showPage()
+Description:   Creates HTML items from data to be displayed in pages
+Parameters:
+   list:       Array of Objects containing student data
+   page:       An index which will determine what page of data to display next
 */
-const ITEMS_PER_PAGE = 9;
 
 function showPage(list, page) {
+   // listTypes will be used to create the elements required to build a student item displayed on the page
    const listTypes = {
       picture: (picture) => {
          const htmlImg = document.createElement('IMG');
@@ -47,6 +44,7 @@ function showPage(list, page) {
       }
    }
 
+   // listTypesOrder will be used to maintain the order the list items of students are displayed in
    const listTypesOrder = [
       'picture',
       'name',
@@ -54,23 +52,22 @@ function showPage(list, page) {
       'registered'
    ];
 
-   // create two variables which will represent the index for the first and last student on the page
-   let startIndex = (page * ITEMS_PER_PAGE) - ITEMS_PER_PAGE;
-   let endIndex = (page * ITEMS_PER_PAGE) > list.length ? list.length : page * ITEMS_PER_PAGE;
+   // Index variables to store the items displayed on each page
+   const startIndex = (page * ITEMS_PER_PAGE) - ITEMS_PER_PAGE;
+   const endIndex = (page * ITEMS_PER_PAGE) > list.length ? list.length : page * ITEMS_PER_PAGE; // endIndex will never exceed the max amount of student data available
  
-   // select the element with a class of `student-list` and assign it to a variable
+   // List of students will be cleared every time showPage() runs
    const htmlStudentList = document.querySelector('.student-list');
- 
-   // set the innerHTML property of the variable you just created to an empty string
    htmlStudentList.innerHTML = '';
- 
-   // loop over the length of the `list` parameter
+   
+   // Loop to create each HTML student item for the page requested
    for (let i = startIndex; i < endIndex; i++) {
       let htmlStudentDetails = document.createElement('DIV');
       htmlStudentDetails.className = 'student-details';
       let htmlJoinedDetails = document.createElement('DIV');
       htmlJoinedDetails.className = 'joined-details';
 
+      // Iterating over listTypesOrder to call functions from listTypes
       for (let index = 0; index < listTypesOrder.length; index++) {
          htmlStudentDetails.appendChild(listTypes[listTypesOrder[index]](list[i][listTypesOrder[index]]));
       }
@@ -86,22 +83,21 @@ function showPage(list, page) {
  }
 
 /*
-Create the `addPagination` function
-This function will create and insert/append the elements needed for the pagination buttons
+Function:      addPagination()
+Description:   Creates pagination selection buttons and their functionality
+Parameters:
+   list:       Array of Objects containing student data
 */
 
 function addPagination(list) {
-   // create a variable to calculate the number of pages needed
+   // Calculate the amount of pages to be created so we know how many buttons to create
    const numOfPages = Math.ceil(list.length / ITEMS_PER_PAGE);
  
-   // select the element with a class of `link-list` and assign it to a variable
    let linkList = document.querySelector('.link-list');
    let buttonsLI = document.createElement('LI');
  
-   // set the innerHTML property of the variable you just created to an empty string
-   linkList.innerHTML = '';
+   linkList.innerHTML = ''; // clear the pagination every time addPagination() executes
 
-   // loop over the number of pages needed
    for (let i = 1; i <= numOfPages; i++) {
       let button = document.createElement('BUTTON');
       button.setAttribute('type', 'button');
@@ -111,23 +107,131 @@ function addPagination(list) {
 
    buttonsLI.firstElementChild.className = 'active';
 
+   // Creating functionality for each button
    linkList.addEventListener('click', (e) => {
       if (e.target.type === 'button') {
          let active = document.querySelector('.active');
          active.className = '';
          e.target.className = 'active';
-         showPage(data, e.target.innerText);
+         showPage(dataCopy, e.target.innerText);
       }
    });
  
-   // create an event listener on the `link-list` element
-     // if the click target is a button:
-       // remove the "active" class from the previous button
-       // add the active class to the clicked button
-       // call the showPage function passing the `list` parameter and page to display as arguments
    linkList.appendChild(buttonsLI);
- }
+}
+
+/*
+Function:         studentSearch()
+Nested Function:  searchObj()
+Description:      Creates the search functionality to find student data,
+                  this iterates over multidimensional objects while
+                  also preventing duplicate results from occurring
+Parameters:
+   search:        User data provided to search for
+   list:          Array of Objects containing student data
+   index:         The current index from the list being searched
+Returns:          A complete array of objects containing matched data
+*/
+
+function studentSearch(search) {
+   let found = [];
+   
+   function searchObj(list, index) {
+      for (let key in list) {
+         if (key != 'picture') {
+            if (typeof list[key] === 'object') {
+               searchObj(list[key], index);
+            } else if (typeof list[key] === 'string') {
+               if (list[key].toUpperCase().includes(search.toUpperCase())) {
+                  if (found.indexOf(data[index]) === -1) found.push(data[index]);
+               }
+            } else if (typeof list[key] === 'number') {
+               if (list[key].toString().includes(search)) {
+                  if (found.indexOf(data[index]) === -1) found.push(data[index]);
+               }
+            }
+         }
+      }
+   }
+   
+   for (let i = 0; i < data.length; i++) {
+      searchObj(data[i], i);
+   }
+   
+   return found;
+}
+
+/*
+Function:      searchButton()
+Description:   Creates a search button to find student data
+*/
+
+function searchButton() {
+   const header = document.querySelector('.header');
+   
+   // searchInit will fire once Enter is pressed or the search button is clicked
+   function searchInit() {
+      // Start code for close button
+      if (document.querySelector('.close')) {
+         let remove = document.querySelector('.close');
+         remove.parentElement.removeChild(remove);
+      }
+
+      let closeButton = `
+         <button style="background-color: red; height: 37px; width: 37px;" class="close" type="button">
+            <img src="img/icn-close.svg" alt="Close search">
+         </button>`;
+      
+      searchButton.parentElement.insertAdjacentHTML('beforeend', closeButton);
+      closeButton = document.querySelector('.close');
+      closeButton.addEventListener('click', () => {
+         showPage(data, 1);
+         addPagination(data);
+         closeButton.parentNode.removeChild(closeButton);
+         input.value = '';
+         dataCopy = data; // reset data to original
+      });
+      // End code for close button
+
+      dataCopy = studentSearch(document.getElementById('search').value); //store search results over dataCopy instead
+
+      if (dataCopy.length > 0) {
+         showPage(dataCopy, 1);
+         addPagination(dataCopy);
+      } else {
+         let pagination = document.querySelector('.pagination');
+         let studentList = document.querySelector('.student-list');
+         pagination.firstElementChild.innerHTML = '';
+         studentList.innerHTML = '';
+         pagination.firstElementChild.insertAdjacentHTML('beforeend', '<li><h2>No results found!</h2></li>');
+      }
+   }
+
+   // Start creating search field and button
+   let search = `
+      <label for="search" class="student-search">
+         <input id="search" placeholder="Search by name...">
+         <button type="button"><img src="img/icn-search.svg" alt="Search icon"></button>
+      </label>
+   `;
+
+   header.insertAdjacentHTML('beforeend', search);
+   const searchButton = document.querySelector('.student-search').lastElementChild;
+   let input = document.getElementById('search');
+   // End creating search field and button
+
+   input.addEventListener('keyup', (e) => {
+      if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+         searchInit();
+      }
+   });
+
+   searchButton.addEventListener('click', () => {
+      searchInit();
+   });
+}
 
 // Call functions
 showPage(data, 1);
 addPagination(data);
+searchButton();
