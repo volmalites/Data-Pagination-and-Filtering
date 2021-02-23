@@ -17,8 +17,9 @@ For assistance:
 Create the `showPage` function
 This function will create and insert/append the elements needed to display a "page" of nine students
 */
+const ITEMS_PER_PAGE = 9;
 
-function showPage(list, page = false) {
+function showPage(list, page) {
    const listTypes = {
       picture: (picture) => {
          const htmlImg = document.createElement('IMG');
@@ -54,7 +55,8 @@ function showPage(list, page = false) {
    ];
 
    // create two variables which will represent the index for the first and last student on the page
-   let firstIndex, lastIndex;
+   let startIndex = (page * ITEMS_PER_PAGE) - ITEMS_PER_PAGE;
+   let endIndex = (page * ITEMS_PER_PAGE) > list.length ? list.length : page * ITEMS_PER_PAGE;
  
    // select the element with a class of `student-list` and assign it to a variable
    const htmlStudentList = document.querySelector('.student-list');
@@ -63,7 +65,7 @@ function showPage(list, page = false) {
    htmlStudentList.innerHTML = '';
  
    // loop over the length of the `list` parameter
-   for (let i = 0; i < 9; i++) {
+   for (let i = startIndex; i < endIndex; i++) {
       let htmlStudentDetails = document.createElement('DIV');
       htmlStudentDetails.className = 'student-details';
       let htmlJoinedDetails = document.createElement('DIV');
@@ -88,8 +90,44 @@ Create the `addPagination` function
 This function will create and insert/append the elements needed for the pagination buttons
 */
 
+function addPagination(list) {
+   // create a variable to calculate the number of pages needed
+   const numOfPages = Math.ceil(list.length / ITEMS_PER_PAGE);
+ 
+   // select the element with a class of `link-list` and assign it to a variable
+   let linkList = document.querySelector('.link-list');
+   let buttonsLI = document.createElement('LI');
+ 
+   // set the innerHTML property of the variable you just created to an empty string
+   linkList.innerHTML = '';
 
+   // loop over the number of pages needed
+   for (let i = 1; i <= numOfPages; i++) {
+      let button = document.createElement('BUTTON');
+      button.setAttribute('type', 'button');
+      button.innerText = i;
+      buttonsLI.appendChild(button);
+   }
+
+   buttonsLI.firstElementChild.className = 'active';
+
+   linkList.addEventListener('click', (e) => {
+      if (e.target.type === 'button') {
+         let active = document.querySelector('.active');
+         active.className = '';
+         e.target.className = 'active';
+         showPage(data, e.target.innerText);
+      }
+   });
+ 
+   // create an event listener on the `link-list` element
+     // if the click target is a button:
+       // remove the "active" class from the previous button
+       // add the active class to the clicked button
+       // call the showPage function passing the `list` parameter and page to display as arguments
+   linkList.appendChild(buttonsLI);
+ }
 
 // Call functions
-showPage(data);
-console.log(data);
+showPage(data, 1);
+addPagination(data);
