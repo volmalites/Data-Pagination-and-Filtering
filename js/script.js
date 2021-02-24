@@ -218,9 +218,7 @@ function searchButton() {
    // End creating search field and button
 
    input.addEventListener('keyup', (e) => {
-      if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-         searchInit();
-      }
+      searchInit();
    });
 
    searchButton.addEventListener('click', () => {
