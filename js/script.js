@@ -94,18 +94,19 @@ function addPagination(list) {
    const numOfPages = Math.ceil(list.length / ITEMS_PER_PAGE);
  
    let linkList = document.querySelector('.link-list');
-   let buttonsLI = document.createElement('LI');
  
    linkList.innerHTML = ''; // clear the pagination every time addPagination() executes
 
    for (let i = 1; i <= numOfPages; i++) {
+      let buttonsLI = document.createElement('LI');
       let button = document.createElement('BUTTON');
       button.setAttribute('type', 'button');
       button.innerText = i;
       buttonsLI.appendChild(button);
+      linkList.appendChild(buttonsLI);
    }
 
-   buttonsLI.firstElementChild.className = 'active';
+   linkList.firstElementChild.firstElementChild.className = 'active';
 
    // Creating functionality for each button
    linkList.addEventListener('click', (e) => {
@@ -116,8 +117,6 @@ function addPagination(list) {
          showPage(dataCopy, e.target.innerText);
       }
    });
- 
-   linkList.appendChild(buttonsLI);
 }
 
 /*
@@ -138,17 +137,15 @@ function studentSearch(search) {
    
    function searchObj(list, index) {
       for (let key in list) {
-         if (key != 'picture') {
-            if (typeof list[key] === 'object') {
-               searchObj(list[key], index);
-            } else if (typeof list[key] === 'string') {
-               if (list[key].toUpperCase().includes(search.toUpperCase())) {
-                  if (found.indexOf(data[index]) === -1) found.push(data[index]);
-               }
-            } else if (typeof list[key] === 'number') {
-               if (list[key].toString().includes(search)) {
-                  if (found.indexOf(data[index]) === -1) found.push(data[index]);
-               }
+         if (typeof list[key] === 'object' && (key === 'first' || key === 'last')) { //for this project only search name.first and name.last
+            searchObj(list[key], index);
+         } else if (typeof list[key] === 'string') {
+            if (list[key].toUpperCase().includes(search.toUpperCase())) {
+               if (found.indexOf(data[index]) === -1) found.push(data[index]);
+            }
+         } else if (typeof list[key] === 'number') {
+            if (list[key].toString().includes(search)) {
+               if (found.indexOf(data[index]) === -1) found.push(data[index]);
             }
          }
       }
