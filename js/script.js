@@ -137,10 +137,15 @@ function studentSearch(search) {
    
    function searchObj(list, index) {
       for (let key in list) {
-         if (typeof list[key] === 'object' && (key === 'first' || key === 'last')) { //for this project only search name.first and name.last
+         if (typeof list[key] === 'object') {
             searchObj(list[key], index);
          } else if (typeof list[key] === 'string') {
-            if (list[key].toUpperCase().includes(search.toUpperCase())) {
+            if (key === 'first' || key === 'last') { //for this project only search name.first and name.last
+               console.log(key);
+               if (list[key].toUpperCase().includes(search.toUpperCase())) {
+                  if (found.indexOf(data[index]) === -1) found.push(data[index]);
+               }
+            } else if (list[key].toUpperCase().includes(search.toUpperCase())) {
                if (found.indexOf(data[index]) === -1) found.push(data[index]);
             }
          } else if (typeof list[key] === 'number') {
