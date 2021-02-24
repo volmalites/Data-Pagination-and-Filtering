@@ -141,7 +141,6 @@ function studentSearch(search) {
             searchObj(list[key], index);
          } else if (typeof list[key] === 'string') {
             if (key === 'first' || key === 'last') { //for this project only search name.first and name.last
-               console.log(key);
                if (list[key].toUpperCase().includes(search.toUpperCase())) {
                   if (found.indexOf(data[index]) === -1) found.push(data[index]);
                }
