@@ -140,11 +140,7 @@ function studentSearch(search) {
          if (typeof list[key] === 'object') {
             searchObj(list[key], index);
          } else if (typeof list[key] === 'string') {
-            if (key === 'first' || key === 'last') { //for this project only search name.first and name.last
-               if (list[key].toUpperCase().includes(search.toUpperCase())) {
-                  if (found.indexOf(data[index]) === -1) found.push(data[index]);
-               }
-            } else if (list[key].toUpperCase().includes(search.toUpperCase())) {
+            if (list[key].toUpperCase().includes(search.toUpperCase())) {
                if (found.indexOf(data[index]) === -1) found.push(data[index]);
             }
          } else if (typeof list[key] === 'number') {
@@ -156,7 +152,13 @@ function studentSearch(search) {
    }
    
    for (let i = 0; i < data.length; i++) {
-      searchObj(data[i], i);
+      //for this project only search name.first and name.last
+      let fullNames = `${data[i].name.first} ${data[i].name.last}`;
+      if (fullNames.toUpperCase().includes(search.toUpperCase())) {
+         found.push(data[i]);
+      }
+
+      //searchObj(data[i], i);
    }
    
    return found;
